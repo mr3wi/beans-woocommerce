@@ -354,7 +354,7 @@ class Helper
      * @param int $limit Optional limit for the number of rules to retrieve, defaults to 30
      * @return array The rules object containing active rules
      *
-     * @since 4.0.5
+     * @since 4.0.7
      */
     public static function getRules($limit = 30)
     {
@@ -391,7 +391,7 @@ class Helper
      * @param string $uid The unique identifier of the rule
      * @return array|null The rule object or null if not found
      *
-     * @since 4.0.5
+     * @since 4.0.7
      */
     public static function getRule($uid)
     {
