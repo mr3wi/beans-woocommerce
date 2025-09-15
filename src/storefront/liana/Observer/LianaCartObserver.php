@@ -28,6 +28,7 @@ class LianaCartObserver extends LianaObserver
         parent::init($display);
 
         add_action('woocommerce_checkout_order_processed', array(__CLASS__, 'processCartRedemption'), 10, 3);
+        add_action('woocommerce_store_api_checkout_order_processed', array( __CLASS__, 'processCartRedemptionStoreApi' ), 10, 1);
         add_filter('woocommerce_add_to_cart_fragments', array(__CLASS__, 'renderCartFragment'), 15, 1);
     }
 
@@ -65,7 +66,7 @@ class LianaCartObserver extends LianaObserver
      * - Ensure that the customer has enough points
      * - Create redemption coupon while ensuring redemption constraints
      *
-     * @return void The redemption metadata is saved to $_SESSION
+     * @return void The redemption metadata is saved to session
      *
      * @since 3.0.0
      */
@@ -87,12 +88,14 @@ class LianaCartObserver extends LianaObserver
         $discount_amount = self::getAllowedDiscount($account, $cart->subtotal);
 
         if ($discount_amount) {
-            $_SESSION['liana_redemption_' . self::REDEEM_COUPON_CODE] = array(
+            $session_key = 'liana_redemption_' . self::REDEEM_COUPON_CODE;
+            $session_data = array(
                 'code'          => self::REDEEM_COUPON_CODE,
                 'amount'        => $discount_amount,
                 'discount_type' => 'fixed_cart',
                 'beans'         => $discount_amount * self::$display['beans_rate'],
             );
+            Helper::setSessionData($session_key, $session_data);
             $cart->apply_coupon(self::REDEEM_COUPON_CODE);
         }
     }
@@ -103,7 +106,7 @@ class LianaCartObserver extends LianaObserver
      * - Ensure that the customer is on the right tier
      * - Create redemption coupon
      *
-     * @return void The redemption metadata is saved to $_SESSION
+     * @return void The redemption metadata is saved to PHP session
      *
      * @since 3.4.0
      */
@@ -136,12 +139,14 @@ class LianaCartObserver extends LianaObserver
 
         $coupon_code = self::REDEEM_LIFETIME_CODE;
 
-        $_SESSION["liana_redemption_{$coupon_code}"] = array(
+        $session_key = "liana_redemption_{$coupon_code}";
+        $session_data = array(
             'code'          => self::REDEEM_LIFETIME_CODE,
             'amount'        => $discount_amount,
             'discount_type' => 'percent',
             'beans'         => null,
         );
+        Helper::setSessionData($session_key, $session_data);
 
         $cart = Helper::getCart();
         $cart->apply_coupon(self::REDEEM_LIFETIME_CODE);
@@ -167,5 +172,21 @@ class LianaCartObserver extends LianaObserver
         self::commitRedemption($account, $order, self::REDEEM_COUPON_CODE);
         self::cancelRedemption();
         BeansAccount::refreshSession();
+    }
+
+    /**
+     * Bridge for WooCommerce Blocks (Store API) checkout completion.
+     *
+     * @param \WC_Order         $order
+     * @param \WP_REST_Request  $request
+     *
+     * @return void
+     *
+     * @since 4.0.5
+     */
+    public static function processCartRedemptionStoreApi($order)
+    {
+        // Reuse your existing handler: ($order_id, $posted_data, $order)
+        self::processCartRedemption($order->get_id(), null, $order);
     }
 }

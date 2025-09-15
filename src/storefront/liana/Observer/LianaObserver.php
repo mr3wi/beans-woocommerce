@@ -80,7 +80,7 @@ class LianaObserver
         foreach (self::getRedeemCodes() as $code) {
             $cart->remove_coupon($code);
             $key = "liana_redemption_{$code}";
-            unset($_SESSION[$key]);
+            Helper::unsetSessionData($key);
             unset(self::$redemption_cache[$key]);
         }
     }
@@ -103,11 +103,7 @@ class LianaObserver
             return self::$redemption_cache[$key];
         }
 
-        if (isset($_SESSION[$key])) {
-            return $_SESSION[$key];
-        }
-
-        return null;
+        return Helper::getSessionData($key);
     }
 
     /**
@@ -197,8 +193,8 @@ class LianaObserver
             'individual_use'              => false,
             'product_ids'                 => isset($r['product_ids']) ? $r['product_ids'] : array(),
             'excluded_product_ids'        => array(),
-            'usage_limit'                 => 1,
-            'usage_limit_per_user'        => 1,
+            'usage_limit'                 => 0,
+            'usage_limit_per_user'        => 0,
             'limit_usage_to_x_items'      => null,
             'free_shipping'               => false,
             'product_categories'          => Preferences::get('redemption_collections'),
