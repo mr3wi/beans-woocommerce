@@ -116,6 +116,7 @@ class Helper
         delete_transient('beans_bamboo_display_current');
         delete_transient('beans_liana_display_current');
         delete_transient('beans_core_user_current_loginkey');
+        delete_transient('beans_liana_rule');
     }
 
     /**
@@ -345,4 +346,68 @@ class Helper
 
         return $display;
     }
+
+    /**
+     * Retrieve rules from the STEM API.
+     * Fetch active rules from the Liana API endpoint.
+     *
+     * @param int $limit Optional limit for the number of rules to retrieve, defaults to 30
+     * @return array The rules object containing active rules
+     *
+     * @since 4.0.5
+     */
+    public static function getRules($limit = 30)
+    {
+        $rules = self::requestTransientAPI(
+            'GET',
+            'liana/rule',
+            'STEM',
+            'v3',
+            array('limit' => $limit)
+        );
+
+        // If rules is empty return an empty array
+        if (empty($rules)) {
+            self::log('Helper: Liana Rules are empty');
+            return array();
+        }
+
+        // Format rules by UID for easier access
+        $formatted_rules = array();
+        if (isset($rules['data']) && is_array($rules['data'])) {
+            foreach ($rules['data'] as $rule) {
+                if (isset($rule['uid'])) {
+                    $formatted_rules[$rule['uid']] = $rule;
+                }
+            }
+        }
+
+        return $formatted_rules;
+    }
+
+    /**
+     * Retrieve a single rule by UID from the STEM API.
+     *
+     * @param string $uid The unique identifier of the rule
+     * @return array|null The rule object or null if not found
+     *
+     * @since 4.0.5
+     */
+    public static function getRule($uid)
+    {
+        $rule = self::requestTransientAPI(
+            'GET',
+            "liana/rule/{$uid}",
+            'STEM',
+            'v3'
+        );
+
+        if (empty($rule)) {
+            self::log("Helper: Rule with UID {$uid} not found");
+            return null;
+        }
+
+        return $rule;
+    }
+
 }
