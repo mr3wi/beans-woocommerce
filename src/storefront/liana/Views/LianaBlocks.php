@@ -220,18 +220,21 @@ class LianaBlocks
 
         ?>
         <div class="woocommerce">
-          <div class="woocommerce-info"><?=$notice_join_points?> <?=$notice_earn_points?></div>
+          <div class="woocommerce-info beans-cart-notice-info">
+            <span class="beans-join-point-notice"><?=$notice_join_points?></span> 
+            <span class="beans-earn-point-notice"><?=$notice_earn_points?></span>
+          </div>
           <?php if ($notice_cancel_redemption) : ?>
-            <div class="woocommerce-info">
+            <div class="woocommerce-info beans-cart-notice-info">
                 <?=$notice_cancel_redemption?>
-              <a class="woocommerce-Button button" onclick="return Beans3.Liana.Redemption.cancel();"
+              <a class="woocommerce-Button button beans-redeem-button" onclick="return Beans3.Liana.Redemption.cancel();"
                 >Cancel redemption</a> 
             </div>
           <?php endif?>
           <?php if ($notice_redeem_points) : ?>
             <div class="woocommerce-info">
                 <?=$notice_redeem_points?>
-              <a class="woocommerce-Button button" onclick="return Beans3.Liana.Redemption.apply();">Redeem</a> 
+              <a class="woocommerce-Button button beans-redeem-button" onclick="return Beans3.Liana.Redemption.apply();">Redeem</a> 
             </div>
           <?php endif?>
         </div>
