@@ -152,6 +152,7 @@ class LianaBlocks
         $notice_cancel_redemption = "";
 
         $cart = Helper::getCart();
+        $registerRule = Helper::getRule('rule:liana:new_beans_card');
         $account = BeansAccount::getSession();
         $active_redemption = LianaObserver::getActiveRedemption(LianaObserver::REDEEM_COUPON_CODE);
 
@@ -189,7 +190,7 @@ class LianaBlocks
             )
         );
 
-        if (!$account) {
+        if (!$account && $registerRule && $registerRule['is_active']) {
             $notice_join_points = strtr(
                 __("Join our rewards program and earn {quantity} {beans_name}.", "beans-woocommerce"),
                 array(
